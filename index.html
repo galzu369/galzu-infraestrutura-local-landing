@@ -617,6 +617,12 @@
             animation: slideIn 0.5s ease-out;
         }
 
+        .success-message .success-note {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: rgba(134, 239, 172, 0.85);
+        }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -862,6 +868,7 @@
             <div class="success-message" id="successMessage">
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
+                <p class="success-note" data-i18n="success_activation">Na primeira utilização, verifica a caixa de entrada e o spam: o serviço de envio pode ter enviado um email de ativação — clica no link para ativar as entregas.</p>
             </div>
         </div>
     </section>
@@ -978,7 +985,8 @@
                     cta_form: 'Receber Diagnóstico',
                     form_response_time: 'Resposta em até 24h úteis.',
                     success_title: '🚀 Pedido Recebido!',
-                    success_body: 'O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.'
+                    success_body: 'O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.',
+                    success_activation: 'Na primeira utilização, verifica a caixa de entrada e o spam: o serviço de envio pode ter enviado um email de ativação — clica no link para ativar as entregas.'
                 },
                 en: {
                     page_title: 'Galzu | Strategic Infrastructure for Local Businesses',
@@ -1053,7 +1061,8 @@
                     cta_form: 'Get Diagnosis',
                     form_response_time: 'Reply within up to 24 business hours.',
                     success_title: '🚀 Request received!',
-                    success_body: 'Your request was submitted successfully. We will review your business and send you a strategic plan within the next 24 hours.'
+                    success_body: 'Your request was submitted successfully. We will review your business and send you a strategic plan within the next 24 hours.',
+                    success_activation: 'On first use, check your inbox and spam: the form service may have sent an activation email — click the link to enable deliveries.'
                 }
             };
 
@@ -1112,26 +1121,48 @@
             });
         })();
 
-        function submitBusinessRequest(event) {
+        async function submitBusinessRequest(event) {
             event.preventDefault();
-            
-            const formData = {
-                businessName: document.getElementById('businessName').value,
-                serviceType: document.getElementById('serviceType').value,
-                businessAge: document.getElementById('businessAge').value,
-                location: document.getElementById('location').value,
-                phone: document.getElementById('phone').value,
-                email: document.getElementById('email').value,
-                challenge: document.getElementById('challenge').value,
-                timestamp: new Date().toISOString(),
-                source: 'galzu_infraestrutura_local'
-            };
-            
-            console.log('Business Request Submitted (placeholder):', formData);
-
             const formEl = event.target;
-            formEl.style.display = 'none';
-            document.getElementById('successMessage').classList.add('show');
+            const businessName = document.getElementById('businessName').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            const payload = new FormData(formEl);
+            payload.append('_subject', 'Pedido Diagnóstico Galzu - ' + businessName);
+            payload.append('_captcha', 'false');
+            payload.append('_template', 'table');
+            payload.append('_replyto', email);
+            payload.append('source', 'galzu_infraestrutura_local');
+            payload.append('_timestamp', new Date().toISOString());
+
+            try {
+                const response = await fetch('https://formsubmit.co/ajax/galzuconsult@gmail.com', {
+                    method: 'POST',
+                    body: payload,
+                    headers: { Accept: 'application/json' }
+                });
+                const result = await response.json();
+                if (!response.ok || result.success !== 'true') {
+                    throw new Error('Submission failed');
+                }
+                formEl.style.display = 'none';
+                document.getElementById('successMessage').classList.add('show');
+            } catch (err) {
+                fallbackFormSubmit(formEl, businessName, email);
+            }
+        }
+
+        function fallbackFormSubmit(form, businessName, email) {
+            form.setAttribute('action', 'https://formsubmit.co/galzuconsult@gmail.com');
+            form.setAttribute('method', 'POST');
+            [['_subject', 'Pedido Diagnóstico Galzu - ' + businessName], ['_captcha', 'false'], ['_template', 'table'], ['_replyto', email], ['source', 'galzu_infraestrutura_local']].forEach(function (pair) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = pair[0];
+                input.value = pair[1];
+                form.appendChild(input);
+            });
+            form.submit();
         }
 
         // Smooth scrolling for anchor links
