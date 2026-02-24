@@ -1121,11 +1121,43 @@
             });
         })();
 
+        // Chave Web3Forms: obtém em https://web3forms.com (entra com galzuconsult@gmail.com e cola aqui)
+        const WEB3FORMS_ACCESS_KEY = 'YOUR_ACCESS_KEY_HERE';
+
         async function submitBusinessRequest(event) {
             event.preventDefault();
             const formEl = event.target;
             const businessName = document.getElementById('businessName').value.trim();
             const email = document.getElementById('email').value.trim();
+
+            if (WEB3FORMS_ACCESS_KEY && WEB3FORMS_ACCESS_KEY !== 'YOUR_ACCESS_KEY_HERE') {
+                try {
+                    const body = {
+                        access_key: WEB3FORMS_ACCESS_KEY,
+                        subject: 'Pedido Diagnóstico Galzu - ' + businessName,
+                        email: email,
+                        businessName: businessName,
+                        serviceType: document.getElementById('serviceType').value,
+                        businessAge: document.getElementById('businessAge').value,
+                        location: document.getElementById('location').value.trim(),
+                        phone: document.getElementById('phone').value.trim(),
+                        challenge: document.getElementById('challenge').value.trim(),
+                        source: 'galzu_infraestrutura_local',
+                        _timestamp: new Date().toISOString()
+                    };
+                    const res = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        formEl.style.display = 'none';
+                        document.getElementById('successMessage').classList.add('show');
+                        return;
+                    }
+                } catch (e) { /* fallback to FormSubmit */ }
+            }
 
             const payload = new FormData(formEl);
             payload.append('_subject', 'Pedido Diagnóstico Galzu - ' + businessName);
@@ -1136,7 +1168,7 @@
             payload.append('_timestamp', new Date().toISOString());
 
             try {
-                const response = await fetch('https://formsubmit.co/ajax/galzuconsult@gmail.com', {
+                const response = await fetch('https://formsubmit.co/ajax/galzuconsult%40gmail.com', {
                     method: 'POST',
                     body: payload,
                     headers: { Accept: 'application/json' }
@@ -1153,7 +1185,7 @@
         }
 
         function fallbackFormSubmit(form, businessName, email) {
-            form.setAttribute('action', 'https://formsubmit.co/galzuconsult@gmail.com');
+            form.setAttribute('action', 'https://formsubmit.co/galzuconsult%40gmail.com');
             form.setAttribute('method', 'POST');
             [['_subject', 'Pedido Diagnóstico Galzu - ' + businessName], ['_captcha', 'false'], ['_template', 'table'], ['_replyto', email], ['source', 'galzu_infraestrutura_local']].forEach(function (pair) {
                 var input = document.createElement('input');
