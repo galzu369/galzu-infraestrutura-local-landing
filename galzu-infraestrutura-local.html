@@ -602,6 +602,39 @@
             text-align: center;
         }
 
+        .form-status {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 1.4em;
+        }
+        .form-status.sending { color: rgba(218, 165, 32, 0.9); }
+        .form-status.error { color: #f59e0b; }
+        .form-status.ok { color: #86efac; }
+
+        .config-guide {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: rgba(218, 165, 32, 0.08);
+            border: 1px solid rgba(218, 165, 32, 0.25);
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        .config-guide-title {
+            color: rgba(218, 165, 32, 0.95);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        .config-guide-list {
+            margin: 0;
+            padding-left: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.7;
+        }
+        .config-guide-list li { margin-bottom: 0.6rem; }
+        .config-guide a { color: #daa520; text-decoration: underline; }
+        .config-guide code { background: rgba(0,0,0,0.3); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
+
         /* Success Message */
         .success-message {
             display: none;
@@ -864,14 +897,26 @@
 
                 <p class="form-note" data-i18n-html="form_note">Analisamos cada pedido individualmente.<br>Se encaixar no perfil, agendamos conversa em 24h.</p>
                 
-                <button type="submit" class="form-submit" data-i18n="cta_form">Receber Diagnóstico</button>
+                <button type="submit" class="form-submit" id="formSubmitBtn" data-i18n="cta_form">Receber Diagnóstico</button>
                 <p class="form-response" data-i18n="form_response_time">Resposta em até 24h úteis.</p>
+                <div id="formStatus" class="form-status" aria-live="polite"></div>
             </form>
             
             <div class="success-message" id="successMessage">
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
                 <p class="success-note" data-i18n="success_activation">Se não receberes o email em 1–2 min: verifica Spam e Promoções; no dashboard Web3Forms confirma o email de destino. Site: galzu.pro</p>
+            </div>
+
+            <div class="config-guide" id="configGuide">
+                <h4 class="config-guide-title">Não recebes o email? Configura o Web3Forms assim:</h4>
+                <ol class="config-guide-list">
+                    <li>Entra em <a href="https://web3forms.com" target="_blank" rel="noopener">web3forms.com</a> com o <strong>mesmo email</strong> onde queres receber (ex: galzuconsult@gmail.com). O email de login é o email de destino dos envios.</li>
+                    <li>Cria um <strong>Access Key</strong> (ou usa a que já tens). A key fica associada a esse email.</li>
+                    <li>Cola a Access Key no código desta página na variável <code>WEB3FORMS_ACCESS_KEY</code> (não uses o exemplo do site).</li>
+                    <li>Se o formulário mostrar "Web3Forms: ..." em amarelo, lê a mensagem: pode ser domínio bloqueado, rate limit ou email em lista de bounce. Contacta o suporte em <a href="https://web3forms.com/help" target="_blank" rel="noopener">web3forms.com/help</a> e pede para: confirmar que a key envia para galzuconsult@gmail.com, aprovar o domínio <strong>galzu.pro</strong> e remover o email da lista de bounce se for o caso.</li>
+                    <li>No Gmail: verifica <strong>Spam</strong> e <strong>Promoções</strong>; adiciona <code>notify@web3forms.com</code> aos contactos e marca um email como "Não é spam".</li>
+                </ol>
             </div>
         </div>
     </section>
@@ -1135,12 +1180,20 @@
             return k.length > 10 && k !== 'YOUR_ACCESS_KEY_HERE' && k !== 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
         }
 
+        function setFormStatus(text, type) {
+            var el = document.getElementById('formStatus');
+            if (!el) return;
+            el.textContent = text || '';
+            el.className = 'form-status' + (type ? ' ' + type : '');
+        }
+
         async function submitBusinessRequest(event) {
             event.preventDefault();
-            const formEl = event.target;
-            const businessName = document.getElementById('businessName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const payload = {
+            var formEl = event.target;
+            var submitBtn = document.getElementById('formSubmitBtn');
+            var businessName = document.getElementById('businessName').value.trim();
+            var email = document.getElementById('email').value.trim();
+            var payload = {
                 _subject: 'Pedido Diagnóstico Galzu - ' + businessName,
                 Nome_do_negocio: businessName,
                 Tipo_de_servico: document.getElementById('serviceType').value,
@@ -1151,6 +1204,9 @@
                 Maior_dificuldade: document.getElementById('challenge').value.trim(),
                 _timestamp: new Date().toISOString()
             };
+
+            setFormStatus('A enviar...', 'sending');
+            if (submitBtn) submitBtn.disabled = true;
 
             // 1) Web3Forms (principal)
             if (isWeb3FormsKeyValid(WEB3FORMS_ACCESS_KEY)) {
@@ -1174,17 +1230,25 @@
                     });
                     var data = await res.json();
                     if (res.ok && data.success) {
+                        setFormStatus('');
                         formEl.style.display = 'none';
                         document.getElementById('successMessage').classList.add('show');
+                        if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
-                    if (typeof console !== 'undefined' && console.log) {
-                        console.log('Web3Forms response:', res.status, data);
-                    }
+                    var errMsg = (data.body && data.body.message) ? data.body.message : (data.message || 'Erro ' + res.status);
+                    setFormStatus('Web3Forms: ' + errMsg + ' — Ver guia de configuração abaixo.', 'error');
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
                 } catch (e) {
-                    if (typeof console !== 'undefined' && console.log) { console.log('Web3Forms error:', e); }
+                    setFormStatus('Web3Forms: falha de rede. Tenta de novo ou verifica a consola (F12).', 'error');
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
                 }
             }
+
+            setFormStatus('A tentar método alternativo...', 'sending');
+            if (submitBtn) submitBtn.disabled = false;
 
             // 2) Formspree (fallback)
             if (FORMSPREE_FORM_ID) {
@@ -1196,8 +1260,10 @@
                     });
                     var data = await res.json();
                     if (res.ok && !data.error) {
+                        setFormStatus('');
                         formEl.style.display = 'none';
                         document.getElementById('successMessage').classList.add('show');
+                        if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
                 } catch (e) { /* fallback */ }
@@ -1214,11 +1280,15 @@
                 });
                 var result = await response.json();
                 if (response.ok && result.success === 'true') {
+                    setFormStatus('');
                     formEl.style.display = 'none';
                     document.getElementById('successMessage').classList.add('show');
+                    if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
             } catch (err) { /* fallback redirect */ }
+            setFormStatus('A redirecionar para envio alternativo...', 'sending');
+            if (submitBtn) submitBtn.disabled = false;
             fallbackFormSubmit(formEl, payload);
         }
 
