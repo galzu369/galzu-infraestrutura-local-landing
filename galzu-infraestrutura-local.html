@@ -1213,16 +1213,59 @@
             setFormStatus('A enviar...', 'sending');
             if (submitBtn) submitBtn.disabled = true;
 
-            // 1) Formspree (plano B — usa FormData do form (inclui name=\"email\"))
+            // 1) Web3Forms (principal) — robusto (content-type/JSON/mensagem)
+            if (isWeb3FormsKeyValid(WEB3FORMS_ACCESS_KEY)) {
+                try {
+                    var w3body = {
+                        access_key: WEB3FORMS_ACCESS_KEY.trim(),
+                        subject: payload._subject,
+                        from_name: businessName,
+                        email: email,
+                        Nome_do_negocio: payload.Nome_do_negocio,
+                        Tipo_de_servico: payload.Tipo_de_servico,
+                        Ha_quanto_tempo_negocio: payload.Ha_quanto_tempo_negocio,
+                        Zona: payload.Zona,
+                        WhatsApp_Telefone: payload.WhatsApp_Telefone,
+                        Maior_dificuldade: payload.Maior_dificuldade
+                    };
+                    var res = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(w3body)
+                    });
+                    var ctype = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
+                    if (ctype.toLowerCase().indexOf('application/json') === -1) {
+                        var raw = '';
+                        try { raw = await res.text(); } catch (_) {}
+                        setFormStatus('Web3Forms: resposta não-JSON (status ' + res.status + '). A tentar Formspree...', 'error');
+                    } else {
+                        var data;
+                        try { data = await res.json(); } catch (_) { data = null; }
+                        if (res.ok && data && data.success) {
+                            setFormStatus('');
+                            formEl.style.display = 'none';
+                            document.getElementById('successMessage').classList.add('show');
+                            if (submitBtn) submitBtn.disabled = false;
+                            return;
+                        }
+                        var msg = (data && data.body && data.body.message) ? data.body.message : ((data && data.message) ? data.message : ('Erro ' + res.status));
+                        setFormStatus('Web3Forms: ' + msg + ' — A tentar Formspree...', 'error');
+                    }
+                } catch (e) {
+                    setFormStatus('Web3Forms: falha de rede. A tentar Formspree...', 'error');
+                }
+            } else {
+                setFormStatus('Web3Forms: access key ausente/inválida. A tentar Formspree...', 'error');
+            }
+
+            // 2) Formspree (backup)
             if (FORMSPREE_FORM_ID) {
                 try {
                     // Importante: Formspree costuma esperar o campo `email` (minúsculo) no payload.
                     // Por isso usamos FormData(form) e só acrescentamos campos extra para subject/message.
                     var formData = new FormData(formEl);
                     formData.append('_subject', payload._subject);
-                    // Campo "message" ajuda a compatibilidade/legibilidade no email do Formspree
                     formData.append('message', payload.Maior_dificuldade);
-                    // Campos adicionais (opcional, mas deixam o email mais claro)
                     formData.append('Nome_do_negocio', payload.Nome_do_negocio);
                     formData.append('Tipo_de_servico', payload.Tipo_de_servico);
                     formData.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
@@ -1263,52 +1306,12 @@
                         return;
                     }
                     if (!res.ok) {
-                        setFormStatus('Formspree: erro ' + res.status + '. (Verifica ativação do form no dashboard Formspree.)', 'error');
+                        setFormStatus('Formspree: erro ' + res.status + '.', 'error');
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
                 } catch (e) {
-                    // Se falhar aqui, queremos ver o erro em vez de cair para Web3Forms (que pode dar "sucesso" sem entrega).
-                    setFormStatus('Formspree: falha de rede/bloqueio no browser. Desativa AdBlock/Tracking Protection e tenta novamente.', 'error');
-                    if (submitBtn) submitBtn.disabled = false;
-                    return;
-                }
-            }
-
-            // 2) Web3Forms (fallback)
-            if (isWeb3FormsKeyValid(WEB3FORMS_ACCESS_KEY)) {
-                try {
-                    var w3body = {
-                        access_key: WEB3FORMS_ACCESS_KEY.trim(),
-                        subject: payload._subject,
-                        from_name: businessName,
-                        email: email,
-                        Nome_do_negocio: payload.Nome_do_negocio,
-                        Tipo_de_servico: payload.Tipo_de_servico,
-                        Ha_quanto_tempo_negocio: payload.Ha_quanto_tempo_negocio,
-                        Zona: payload.Zona,
-                        WhatsApp_Telefone: payload.WhatsApp_Telefone,
-                        Maior_dificuldade: payload.Maior_dificuldade
-                    };
-                    var res = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(w3body)
-                    });
-                    var data = await res.json();
-                    if (res.ok && data.success) {
-                        setFormStatus('');
-                        formEl.style.display = 'none';
-                        document.getElementById('successMessage').classList.add('show');
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-                    var errMsg = (data.body && data.body.message) ? data.body.message : (data.message || 'Erro ' + res.status);
-                    setFormStatus('Web3Forms: ' + errMsg + ' — Ver guia abaixo.', 'error');
-                    if (submitBtn) submitBtn.disabled = false;
-                    return;
-                } catch (e) {
-                    setFormStatus('Web3Forms: falha de rede. Preenche FORMSPREE_FORM_ID para usar Formspree.', 'error');
+                    setFormStatus('Formspree: falha de rede/bloqueio no browser. Desativa AdBlock/Tracking e tenta novamente.', 'error');
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
