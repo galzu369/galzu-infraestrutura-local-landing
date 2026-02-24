@@ -603,37 +603,16 @@
         }
 
         .form-status {
+            display: none;
             margin-top: 1rem;
             font-size: 0.9rem;
             text-align: center;
             min-height: 1.4em;
         }
-        .form-status.sending { color: rgba(218, 165, 32, 0.9); }
-        .form-status.error { color: #f59e0b; }
-        .form-status.ok { color: #86efac; }
-
-        .config-guide {
-            margin-top: 2.5rem;
-            padding: 1.5rem;
-            background: rgba(218, 165, 32, 0.08);
-            border: 1px solid rgba(218, 165, 32, 0.25);
-            border-radius: 8px;
-            font-size: 0.95rem;
+        .form-status.error {
+            display: block;
+            color: #f59e0b;
         }
-        .config-guide-title {
-            color: rgba(218, 165, 32, 0.95);
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-        .config-guide-list {
-            margin: 0;
-            padding-left: 1.25rem;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.7;
-        }
-        .config-guide-list li { margin-bottom: 0.6rem; }
-        .config-guide a { color: #daa520; text-decoration: underline; }
-        .config-guide code { background: rgba(0,0,0,0.3); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
 
         /* Success Message */
         .success-message {
@@ -845,7 +824,7 @@
                 <p class="section-subtitle" data-i18n="contact_subtitle">Preenche o formulário e recebes um plano claro em 24h.</p>
             </div>
 
-            <form class="contact-form" id="contactForm" action="https://formspree.io/f/xeelvaol" method="POST" onsubmit="submitBusinessRequest(event)">
+            <form class="contact-form" id="contactForm" onsubmit="submitBusinessRequest(event)">
                 <input type="checkbox" name="botcheck" class="hidden" style="display: none" tabindex="-1" autocomplete="off">
                 <div class="form-grid">
                     <div class="form-group">
@@ -896,7 +875,6 @@
                 </div>
 
                 <p class="form-note" data-i18n-html="form_note">Analisamos cada pedido individualmente.<br>Se encaixar no perfil, agendamos conversa em 24h.</p>
-                <input type="hidden" name="source" value="galzu_pro_formspree">
                 
                 <button type="submit" class="form-submit" id="formSubmitBtn" data-i18n="cta_form">Receber Diagnóstico</button>
                 <p class="form-response" data-i18n="form_response_time">Resposta em até 24h úteis.</p>
@@ -906,23 +884,6 @@
             <div class="success-message" id="successMessage">
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
-                <p class="success-note" data-i18n="success_activation">Os envios chegam ao email da conta Formspree (galzuconsult@gmail.com). Primeira vez? Verifica o email de ativação do Formspree em Spam/Promoções e clica no link. Depois, os próximos envios chegam à caixa de entrada. Se não receberes em 1–2 min: verifica Spam e Promoções; confirma em formspree.io que o form está ativo e que o email de destino é galzuconsult@gmail.com.</p>
-                <p class="success-note" id="receiptLine" style="margin-top: 0.75rem;"></p>
-            </div>
-
-            <div class="config-guide" id="configGuide">
-                <h4 class="config-guide-title">Plano B — Formspree (receber os envios já):</h4>
-                <ol class="config-guide-list">
-                    <li>Entra em <a href="https://formspree.io" target="_blank" rel="noopener">formspree.io</a> e regista-te com <strong>galzuconsult@gmail.com</strong>.</li>
-                    <li>Clica <strong>New Form</strong>, dá um nome (ex: Galzu Landing) e guarda.</li>
-                    <li>Na página do form, vê o URL: <code>https://formspree.io/f/XXXXXXXX</code> — o <strong>Form ID</strong> é a parte final (ex: <code>xjvqeqky</code>). Copia-o.</li>
-                    <li>No código desta página, procura <code>const FORMSPREE_FORM_ID = '';</code> e cola o ID entre aspas: <code>const FORMSPREE_FORM_ID = 'xjvqeqky';</code> (usa o teu ID). Faz deploy. Os envios passam a ser entregues por Formspree em galzuconsult@gmail.com.</li>
-                </ol>
-                <h4 class="config-guide-title" style="margin-top: 1.2rem;">Web3Forms (quando o suporte resolver):</h4>
-                <ol class="config-guide-list">
-                    <li>Confirma em web3forms.com que a conta usa galzuconsult@gmail.com e que a Access Key está no código em <code>WEB3FORMS_ACCESS_KEY</code>.</li>
-                    <li>Se aparecer erro em amarelo, contacta <a href="https://web3forms.com/help" target="_blank" rel="noopener">web3forms.com/help</a>. No Gmail, verifica Spam/Promoções e adiciona <code>notify@web3forms.com</code> aos contactos.</li>
-                </ol>
             </div>
         </div>
     </section>
@@ -1040,7 +1001,7 @@
                     form_response_time: 'Resposta em até 24h úteis.',
                     success_title: '🚀 Pedido Recebido!',
                     success_body: 'O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.',
-                    success_activation: 'Os envios chegam ao email da conta Formspree (galzuconsult@gmail.com). Primeira vez? Verifica o email de ativação do Formspree em Spam/Promoções e clica no link. Depois, os próximos envios chegam à caixa de entrada. Se não receberes em 1–2 min: verifica Spam e Promoções; confirma em formspree.io que o form está ativo e que o email de destino é galzuconsult@gmail.com.'
+                    success_activation: ''
                 },
                 en: {
                     page_title: 'Galzu | Strategic Infrastructure for Local Businesses',
@@ -1116,7 +1077,7 @@
                     form_response_time: 'Reply within up to 24 business hours.',
                     success_title: '🚀 Request received!',
                     success_body: 'Your request was submitted successfully. We will review your business and send you a strategic plan within the next 24 hours.',
-                    success_activation: 'Submissions go to your Formspree account email (galzuconsult@gmail.com). First time? Check Spam/Promotions for Formspree activation email and click the link. Then future submissions will arrive in your inbox. If you don\'t get it in 1–2 min: check Spam and Promotions; confirm in formspree.io that the form is active and the destination email is galzuconsult@gmail.com.'
+                    success_activation: ''
                 }
             };
 
@@ -1175,10 +1136,8 @@
             });
         })();
 
-        // --- Web3Forms (principal) — https://web3forms.com — Access Key abaixo ---
+        // --- Web3Forms (método principal) ---
         const WEB3FORMS_ACCESS_KEY = '89fd7cd4-eab7-43d0-8bdd-4a0d3c5311d6';
-        // --- Formspree (plano B) — https://formspree.io/f/xeelvaol ---
-        const FORMSPREE_FORM_ID = 'xeelvaol';
 
         function isWeb3FormsKeyValid(key) {
             if (!key || typeof key !== 'string') return false;
@@ -1189,58 +1148,8 @@
         function setFormStatus(text, type) {
             var el = document.getElementById('formStatus');
             if (!el) return;
-            el.textContent = text || '';
-            el.className = 'form-status' + (type ? ' ' + type : '');
-        }
-
-        function setReceipt(provider, status, message) {
-            var el = document.getElementById('formStatus');
-            if (!el) return;
-            var parts = [];
-            if (provider) parts.push('Provider: ' + provider);
-            if (status != null) parts.push('HTTP: ' + status);
-            if (message) parts.push('Msg: ' + message);
-            var txt = parts.join(' | ');
-            el.textContent = txt;
-            el.className = 'form-status ' + (status === 200 ? 'ok' : 'error');
-
-            var receiptLine = document.getElementById('receiptLine');
-            if (receiptLine) receiptLine.textContent = txt;
-        }
-
-        async function submitToFormspree(formEl, payload) {
-            var formData = new FormData(formEl);
-            formData.append('_subject', payload._subject);
-            formData.append('message', payload.Maior_dificuldade);
-            formData.append('Nome_do_negocio', payload.Nome_do_negocio);
-            formData.append('Tipo_de_servico', payload.Tipo_de_servico);
-            formData.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
-            formData.append('Zona', payload.Zona);
-            formData.append('WhatsApp_Telefone', payload.WhatsApp_Telefone);
-
-            var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
-                method: 'POST',
-                headers: { 'Accept': 'application/json' },
-                body: formData
-            });
-
-            var ctype = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
-            if (ctype.toLowerCase().indexOf('application/json') === -1) {
-                var raw = '';
-                try { raw = await res.text(); } catch (_) {}
-                var hint = raw && raw.toLowerCase().indexOf('cloudflare') !== -1 ? 'Cloudflare/Access denied' : 'Non-JSON';
-                return { ok: false, status: res.status, message: hint };
-            }
-
-            var data;
-            try { data = await res.json(); } catch (_) { data = null; }
-            if (res.ok && data && !data.error && (!data.errors || data.errors.length === 0)) {
-                return { ok: true, status: res.status, message: 'OK' };
-            }
-            if (data && data.errors && data.errors.length) {
-                return { ok: false, status: res.status, message: data.errors.map(function (e) { return e.message; }).join(', ') };
-            }
-            return { ok: false, status: res.status, message: (data && (data.message || (data.error && String(data.error)))) || 'HTTP error' };
+            el.textContent = (type === 'error') ? (text || '') : '';
+            el.className = 'form-status' + (type === 'error' ? ' error' : '');
         }
 
         async function submitBusinessRequest(event) {
@@ -1261,10 +1170,10 @@
                 _timestamp: new Date().toISOString()
             };
 
-            setFormStatus('A enviar...', 'sending');
+            setFormStatus('');
             if (submitBtn) submitBtn.disabled = true;
 
-            // 1) Web3Forms (principal) — robusto (content-type/JSON/mensagem)
+            // Web3Forms (principal)
             if (isWeb3FormsKeyValid(WEB3FORMS_ACCESS_KEY)) {
                 try {
                     var w3body = {
@@ -1286,140 +1195,34 @@
                     });
                     var ctype = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
                     if (ctype.toLowerCase().indexOf('application/json') === -1) {
-                        var raw = '';
-                        try { raw = await res.text(); } catch (_) {}
-                        setReceipt('Web3Forms', res.status, 'Non-JSON response');
+                        setFormStatus('Ocorreu um erro ao enviar o pedido. Tenta novamente.', 'error');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
                     } else {
                         var data;
                         try { data = await res.json(); } catch (_) { data = null; }
                         if (res.ok && data && data.success) {
-                            var extra = '';
-                            if (FORMSPREE_FORM_ID) {
-                                try {
-                                    var f = await submitToFormspree(formEl, payload);
-                                    extra = ' | Formspree: ' + (f.ok ? 'OK' : ('FAIL ' + (f.status != null ? f.status : '') + ' ' + f.message));
-                                } catch (e) {
-                                    extra = ' | Formspree: FAIL (network/block)';
-                                }
-                            }
-                            setReceipt('Web3Forms', res.status, 'success' + extra);
+                            setFormStatus('');
                             formEl.style.display = 'none';
                             document.getElementById('successMessage').classList.add('show');
                             if (submitBtn) submitBtn.disabled = false;
                             return;
                         }
                         var msg = (data && data.body && data.body.message) ? data.body.message : ((data && data.message) ? data.message : ('Erro ' + res.status));
-                        setReceipt('Web3Forms', res.status, msg);
+                        setFormStatus(msg ? ('Erro: ' + msg) : 'Ocorreu um erro ao enviar o pedido. Tenta novamente.', 'error');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
                     }
                 } catch (e) {
-                    setReceipt('Web3Forms', null, 'Network error');
+                    setFormStatus('Ocorreu um erro ao enviar o pedido. Tenta novamente.', 'error');
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
                 }
             } else {
-                setReceipt('Web3Forms', null, 'Invalid/missing access key');
+                setFormStatus('Configuração inválida. Contacta o administrador do site.', 'error');
+                if (submitBtn) submitBtn.disabled = false;
+                return;
             }
-
-            // 2) Formspree (backup)
-            if (FORMSPREE_FORM_ID) {
-                try {
-                    // Importante: Formspree costuma esperar o campo `email` (minúsculo) no payload.
-                    // Por isso usamos FormData(form) e só acrescentamos campos extra para subject/message.
-                    var formData = new FormData(formEl);
-                    formData.append('_subject', payload._subject);
-                    formData.append('message', payload.Maior_dificuldade);
-                    formData.append('Nome_do_negocio', payload.Nome_do_negocio);
-                    formData.append('Tipo_de_servico', payload.Tipo_de_servico);
-                    formData.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
-                    formData.append('Zona', payload.Zona);
-                    formData.append('WhatsApp_Telefone', payload.WhatsApp_Telefone);
-                    var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
-                        method: 'POST',
-                        headers: { 'Accept': 'application/json' },
-                        body: formData
-                    });
-                    var ctype = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
-                    if (ctype.toLowerCase().indexOf('application/json') === -1) {
-                        var raw = '';
-                        try { raw = await res.text(); } catch (_) {}
-                        var hint = raw && raw.toLowerCase().indexOf('cloudflare') !== -1 ? ' (Cloudflare/Access denied)' : '';
-                        setReceipt('Formspree', res.status, 'Non-JSON' + hint);
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-
-                    var data;
-                    try { data = await res.json(); } catch (_) {
-                        setReceipt('Formspree', res.status, 'Invalid JSON');
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-
-                    if (res.ok && !data.error && (!data.errors || data.errors.length === 0)) {
-                        setFormStatus('');
-                        formEl.style.display = 'none';
-                        document.getElementById('successMessage').classList.add('show');
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-                    if (data.errors && data.errors.length) {
-                        setReceipt('Formspree', res.status, data.errors.map(function (e) { return e.message; }).join(', '));
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-                    if (!res.ok) {
-                        setReceipt('Formspree', res.status, 'HTTP error');
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-                } catch (e) {
-                    setReceipt('Formspree', null, 'Network/block error');
-                    if (submitBtn) submitBtn.disabled = false;
-                    return;
-                }
-            }
-
-            setFormStatus('A tentar método alternativo...', 'sending');
-            if (submitBtn) submitBtn.disabled = false;
-
-            // 3) FormSubmit.co (último recurso)
-            try {
-                var formData = new FormData();
-                Object.keys(payload).forEach(function (k) { formData.append(k, payload[k]); });
-                var response = await fetch('https://formsubmit.co/ajax/galzuconsult%40gmail.com', {
-                    method: 'POST',
-                    body: formData,
-                    headers: { Accept: 'application/json' }
-                });
-                var result = await response.json();
-                if (response.ok && result.success === 'true') {
-                    setFormStatus('');
-                    formEl.style.display = 'none';
-                    document.getElementById('successMessage').classList.add('show');
-                    if (submitBtn) submitBtn.disabled = false;
-                    return;
-                }
-            } catch (err) { /* fallback redirect */ }
-            setFormStatus('A redirecionar para envio alternativo...', 'sending');
-            if (submitBtn) submitBtn.disabled = false;
-            fallbackFormSubmit(formEl, payload);
-        }
-
-        function fallbackFormSubmit(form, payload) {
-            form.setAttribute('action', 'https://formsubmit.co/galzuconsult%40gmail.com');
-            form.setAttribute('method', 'POST');
-            form.innerHTML = '';
-            Object.keys(payload).forEach(function (k) {
-                var input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = k;
-                input.value = payload[k];
-                form.appendChild(input);
-            });
-            var sub = document.createElement('input');
-            sub.type = 'hidden';
-            sub.name = '_template';
-            sub.value = 'table';
-            form.appendChild(sub);
-            form.submit();
         }
 
         // Nota: não usamos redirect (plano gratuito). O sucesso é mostrado via AJAX.
