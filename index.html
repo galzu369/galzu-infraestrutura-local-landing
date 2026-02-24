@@ -905,7 +905,7 @@
             <div class="success-message" id="successMessage">
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
-                <p class="success-note" data-i18n="success_activation">O email é enviado para o endereço com que te registaste no Web3Forms (não para o email que preencheste no formulário). Se não chegar em 1–2 min: verifica Spam e Promoções em galzuconsult@gmail.com; se te registaste com outro email, verifica também essa caixa. Adiciona notify@web3forms.com aos contactos. Se ainda não receberes, contacta web3forms.com/help e pede para confirmar que a tua Access Key envia para galzuconsult@gmail.com e para verificar lista de bounce.</p>
+                <p class="success-note" data-i18n="success_activation">Os envios chegam ao email da conta Formspree (galzuconsult@gmail.com). Primeira vez? Verifica o email de ativação do Formspree em Spam/Promoções e clica no link. Depois, os próximos envios chegam à caixa de entrada. Se não receberes em 1–2 min: verifica Spam e Promoções; confirma em formspree.io que o form está ativo e que o email de destino é galzuconsult@gmail.com.</p>
             </div>
 
             <div class="config-guide" id="configGuide">
@@ -1038,7 +1038,7 @@
                     form_response_time: 'Resposta em até 24h úteis.',
                     success_title: '🚀 Pedido Recebido!',
                     success_body: 'O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.',
-                    success_activation: 'O email é enviado para o endereço com que te registaste no Web3Forms (não para o email que preencheste no formulário). Se não chegar: verifica Spam e Promoções em galzuconsult@gmail.com; se te registaste com outro email, verifica também essa caixa. Adiciona notify@web3forms.com aos contactos. Se ainda não receberes, contacta web3forms.com/help.'
+                    success_activation: 'Os envios chegam ao email da conta Formspree (galzuconsult@gmail.com). Primeira vez? Verifica o email de ativação do Formspree em Spam/Promoções e clica no link. Depois, os próximos envios chegam à caixa de entrada. Se não receberes em 1–2 min: verifica Spam e Promoções; confirma em formspree.io que o form está ativo e que o email de destino é galzuconsult@gmail.com.'
                 },
                 en: {
                     page_title: 'Galzu | Strategic Infrastructure for Local Businesses',
@@ -1114,7 +1114,7 @@
                     form_response_time: 'Reply within up to 24 business hours.',
                     success_title: '🚀 Request received!',
                     success_body: 'Your request was submitted successfully. We will review your business and send you a strategic plan within the next 24 hours.',
-                    success_activation: 'Emails are sent to the address you used to register at Web3Forms (not the one you typed in the form). If it doesn\'t arrive: check Spam and Promotions in galzuconsult@gmail.com; if you registered with another email, check that inbox too. Add notify@web3forms.com to contacts. If you still don\'t receive, contact web3forms.com/help.'
+                    success_activation: 'Submissions go to your Formspree account email (galzuconsult@gmail.com). First time? Check Spam/Promotions for Formspree activation email and click the link. Then future submissions will arrive in your inbox. If you don\'t get it in 1–2 min: check Spam and Promotions; confirm in formspree.io that the form is active and the destination email is galzuconsult@gmail.com.'
                 }
             };
 
@@ -1212,19 +1212,26 @@
             setFormStatus('A enviar...', 'sending');
             if (submitBtn) submitBtn.disabled = true;
 
-            // 1) Formspree (plano B — ativa quando preencheres FORMSPREE_FORM_ID)
+            // 1) Formspree (plano B — envio em FormData como no exemplo oficial)
             if (FORMSPREE_FORM_ID) {
                 try {
+                    var formData = new FormData();
+                    Object.keys(payload).forEach(function (k) { formData.append(k, payload[k]); });
                     var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify(payload)
+                        headers: { 'Accept': 'application/json' },
+                        body: formData
                     });
                     var data = await res.json();
-                    if (res.ok && !data.error) {
+                    if (res.ok && !data.error && (!data.errors || data.errors.length === 0)) {
                         setFormStatus('');
                         formEl.style.display = 'none';
                         document.getElementById('successMessage').classList.add('show');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+                    if (data.errors && data.errors.length) {
+                        setFormStatus('Formspree: ' + (data.errors.map(function (e) { return e.message; }).join(', ')), 'error');
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
