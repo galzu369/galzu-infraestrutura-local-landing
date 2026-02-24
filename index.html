@@ -907,6 +907,7 @@
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
                 <p class="success-note" data-i18n="success_activation">Os envios chegam ao email da conta Formspree (galzuconsult@gmail.com). Primeira vez? Verifica o email de ativação do Formspree em Spam/Promoções e clica no link. Depois, os próximos envios chegam à caixa de entrada. Se não receberes em 1–2 min: verifica Spam e Promoções; confirma em formspree.io que o form está ativo e que o email de destino é galzuconsult@gmail.com.</p>
+                <p class="success-note" id="receiptLine" style="margin-top: 0.75rem;"></p>
             </div>
 
             <div class="config-guide" id="configGuide">
@@ -1199,8 +1200,47 @@
             if (provider) parts.push('Provider: ' + provider);
             if (status != null) parts.push('HTTP: ' + status);
             if (message) parts.push('Msg: ' + message);
-            el.textContent = parts.join(' | ');
+            var txt = parts.join(' | ');
+            el.textContent = txt;
             el.className = 'form-status ' + (status === 200 ? 'ok' : 'error');
+
+            var receiptLine = document.getElementById('receiptLine');
+            if (receiptLine) receiptLine.textContent = txt;
+        }
+
+        async function submitToFormspree(formEl, payload) {
+            var formData = new FormData(formEl);
+            formData.append('_subject', payload._subject);
+            formData.append('message', payload.Maior_dificuldade);
+            formData.append('Nome_do_negocio', payload.Nome_do_negocio);
+            formData.append('Tipo_de_servico', payload.Tipo_de_servico);
+            formData.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
+            formData.append('Zona', payload.Zona);
+            formData.append('WhatsApp_Telefone', payload.WhatsApp_Telefone);
+
+            var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: formData
+            });
+
+            var ctype = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
+            if (ctype.toLowerCase().indexOf('application/json') === -1) {
+                var raw = '';
+                try { raw = await res.text(); } catch (_) {}
+                var hint = raw && raw.toLowerCase().indexOf('cloudflare') !== -1 ? 'Cloudflare/Access denied' : 'Non-JSON';
+                return { ok: false, status: res.status, message: hint };
+            }
+
+            var data;
+            try { data = await res.json(); } catch (_) { data = null; }
+            if (res.ok && data && !data.error && (!data.errors || data.errors.length === 0)) {
+                return { ok: true, status: res.status, message: 'OK' };
+            }
+            if (data && data.errors && data.errors.length) {
+                return { ok: false, status: res.status, message: data.errors.map(function (e) { return e.message; }).join(', ') };
+            }
+            return { ok: false, status: res.status, message: (data && (data.message || (data.error && String(data.error)))) || 'HTTP error' };
         }
 
         async function submitBusinessRequest(event) {
@@ -1253,21 +1293,16 @@
                         var data;
                         try { data = await res.json(); } catch (_) { data = null; }
                         if (res.ok && data && data.success) {
-                            // Envia também para Formspree em paralelo para ficar registado no dashboard (plano B)
+                            var extra = '';
                             if (FORMSPREE_FORM_ID) {
                                 try {
-                                    var fd = new FormData(formEl);
-                                    fd.append('_subject', payload._subject);
-                                    fd.append('message', payload.Maior_dificuldade);
-                                    fd.append('Nome_do_negocio', payload.Nome_do_negocio);
-                                    fd.append('Tipo_de_servico', payload.Tipo_de_servico);
-                                    fd.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
-                                    fd.append('Zona', payload.Zona);
-                                    fd.append('WhatsApp_Telefone', payload.WhatsApp_Telefone);
-                                    fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, { method: 'POST', headers: { 'Accept': 'application/json' }, body: fd });
-                                } catch (_) {}
+                                    var f = await submitToFormspree(formEl, payload);
+                                    extra = ' | Formspree: ' + (f.ok ? 'OK' : ('FAIL ' + (f.status != null ? f.status : '') + ' ' + f.message));
+                                } catch (e) {
+                                    extra = ' | Formspree: FAIL (network/block)';
+                                }
                             }
-                            setFormStatus('');
+                            setReceipt('Web3Forms', res.status, 'success' + extra);
                             formEl.style.display = 'none';
                             document.getElementById('successMessage').classList.add('show');
                             if (submitBtn) submitBtn.disabled = false;
