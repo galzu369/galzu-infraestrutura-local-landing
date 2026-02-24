@@ -1192,6 +1192,17 @@
             el.className = 'form-status' + (type ? ' ' + type : '');
         }
 
+        function setReceipt(provider, status, message) {
+            var el = document.getElementById('formStatus');
+            if (!el) return;
+            var parts = [];
+            if (provider) parts.push('Provider: ' + provider);
+            if (status != null) parts.push('HTTP: ' + status);
+            if (message) parts.push('Msg: ' + message);
+            el.textContent = parts.join(' | ');
+            el.className = 'form-status ' + (status === 200 ? 'ok' : 'error');
+        }
+
         async function submitBusinessRequest(event) {
             event.preventDefault();
             var formEl = event.target;
@@ -1237,11 +1248,25 @@
                     if (ctype.toLowerCase().indexOf('application/json') === -1) {
                         var raw = '';
                         try { raw = await res.text(); } catch (_) {}
-                        setFormStatus('Web3Forms: resposta não-JSON (status ' + res.status + '). A tentar Formspree...', 'error');
+                        setReceipt('Web3Forms', res.status, 'Non-JSON response');
                     } else {
                         var data;
                         try { data = await res.json(); } catch (_) { data = null; }
                         if (res.ok && data && data.success) {
+                            // Envia também para Formspree em paralelo para ficar registado no dashboard (plano B)
+                            if (FORMSPREE_FORM_ID) {
+                                try {
+                                    var fd = new FormData(formEl);
+                                    fd.append('_subject', payload._subject);
+                                    fd.append('message', payload.Maior_dificuldade);
+                                    fd.append('Nome_do_negocio', payload.Nome_do_negocio);
+                                    fd.append('Tipo_de_servico', payload.Tipo_de_servico);
+                                    fd.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
+                                    fd.append('Zona', payload.Zona);
+                                    fd.append('WhatsApp_Telefone', payload.WhatsApp_Telefone);
+                                    fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, { method: 'POST', headers: { 'Accept': 'application/json' }, body: fd });
+                                } catch (_) {}
+                            }
                             setFormStatus('');
                             formEl.style.display = 'none';
                             document.getElementById('successMessage').classList.add('show');
@@ -1249,13 +1274,13 @@
                             return;
                         }
                         var msg = (data && data.body && data.body.message) ? data.body.message : ((data && data.message) ? data.message : ('Erro ' + res.status));
-                        setFormStatus('Web3Forms: ' + msg + ' — A tentar Formspree...', 'error');
+                        setReceipt('Web3Forms', res.status, msg);
                     }
                 } catch (e) {
-                    setFormStatus('Web3Forms: falha de rede. A tentar Formspree...', 'error');
+                    setReceipt('Web3Forms', null, 'Network error');
                 }
             } else {
-                setFormStatus('Web3Forms: access key ausente/inválida. A tentar Formspree...', 'error');
+                setReceipt('Web3Forms', null, 'Invalid/missing access key');
             }
 
             // 2) Formspree (backup)
@@ -1281,14 +1306,14 @@
                         var raw = '';
                         try { raw = await res.text(); } catch (_) {}
                         var hint = raw && raw.toLowerCase().indexOf('cloudflare') !== -1 ? ' (Cloudflare/Access denied)' : '';
-                        setFormStatus('Formspree: resposta não-JSON, status ' + res.status + hint + '. Isto costuma ser bloqueio (AdBlock/Tracking/DNS).', 'error');
+                        setReceipt('Formspree', res.status, 'Non-JSON' + hint);
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
 
                     var data;
                     try { data = await res.json(); } catch (_) {
-                        setFormStatus('Formspree: JSON inválido (status ' + res.status + '). Tenta novamente.', 'error');
+                        setReceipt('Formspree', res.status, 'Invalid JSON');
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
@@ -1301,17 +1326,17 @@
                         return;
                     }
                     if (data.errors && data.errors.length) {
-                        setFormStatus('Formspree: ' + (data.errors.map(function (e) { return e.message; }).join(', ')), 'error');
+                        setReceipt('Formspree', res.status, data.errors.map(function (e) { return e.message; }).join(', '));
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
                     if (!res.ok) {
-                        setFormStatus('Formspree: erro ' + res.status + '.', 'error');
+                        setReceipt('Formspree', res.status, 'HTTP error');
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
                 } catch (e) {
-                    setFormStatus('Formspree: falha de rede/bloqueio no browser. Desativa AdBlock/Tracking e tenta novamente.', 'error');
+                    setReceipt('Formspree', null, 'Network/block error');
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
