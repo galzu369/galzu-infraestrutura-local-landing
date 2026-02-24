@@ -905,17 +905,21 @@
             <div class="success-message" id="successMessage">
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
-                <p class="success-note" data-i18n="success_activation">Se não receberes o email em 1–2 min: verifica Spam e Promoções; no dashboard Web3Forms confirma o email de destino. Site: galzu.pro</p>
+                <p class="success-note" data-i18n="success_activation">O email é enviado para o endereço com que te registaste no Web3Forms (não para o email que preencheste no formulário). Se não chegar em 1–2 min: verifica Spam e Promoções em galzuconsult@gmail.com; se te registaste com outro email, verifica também essa caixa. Adiciona notify@web3forms.com aos contactos. Se ainda não receberes, contacta web3forms.com/help e pede para confirmar que a tua Access Key envia para galzuconsult@gmail.com e para verificar lista de bounce.</p>
             </div>
 
             <div class="config-guide" id="configGuide">
-                <h4 class="config-guide-title">Não recebes o email? Configura o Web3Forms assim:</h4>
+                <h4 class="config-guide-title">Plano B — Formspree (receber os envios já):</h4>
                 <ol class="config-guide-list">
-                    <li>Entra em <a href="https://web3forms.com" target="_blank" rel="noopener">web3forms.com</a> com o <strong>mesmo email</strong> onde queres receber (ex: galzuconsult@gmail.com). O email de login é o email de destino dos envios.</li>
-                    <li>Cria um <strong>Access Key</strong> (ou usa a que já tens). A key fica associada a esse email.</li>
-                    <li>Cola a Access Key no código desta página na variável <code>WEB3FORMS_ACCESS_KEY</code> (não uses o exemplo do site).</li>
-                    <li>Se o formulário mostrar "Web3Forms: ..." em amarelo, lê a mensagem: pode ser domínio bloqueado, rate limit ou email em lista de bounce. Contacta o suporte em <a href="https://web3forms.com/help" target="_blank" rel="noopener">web3forms.com/help</a> e pede para: confirmar que a key envia para galzuconsult@gmail.com, aprovar o domínio <strong>galzu.pro</strong> e remover o email da lista de bounce se for o caso.</li>
-                    <li>No Gmail: verifica <strong>Spam</strong> e <strong>Promoções</strong>; adiciona <code>notify@web3forms.com</code> aos contactos e marca um email como "Não é spam".</li>
+                    <li>Entra em <a href="https://formspree.io" target="_blank" rel="noopener">formspree.io</a> e regista-te com <strong>galzuconsult@gmail.com</strong>.</li>
+                    <li>Clica <strong>New Form</strong>, dá um nome (ex: Galzu Landing) e guarda.</li>
+                    <li>Na página do form, vê o URL: <code>https://formspree.io/f/XXXXXXXX</code> — o <strong>Form ID</strong> é a parte final (ex: <code>xjvqeqky</code>). Copia-o.</li>
+                    <li>No código desta página, procura <code>const FORMSPREE_FORM_ID = '';</code> e cola o ID entre aspas: <code>const FORMSPREE_FORM_ID = 'xjvqeqky';</code> (usa o teu ID). Faz deploy. Os envios passam a ser entregues por Formspree em galzuconsult@gmail.com.</li>
+                </ol>
+                <h4 class="config-guide-title" style="margin-top: 1.2rem;">Web3Forms (quando o suporte resolver):</h4>
+                <ol class="config-guide-list">
+                    <li>Confirma em web3forms.com que a conta usa galzuconsult@gmail.com e que a Access Key está no código em <code>WEB3FORMS_ACCESS_KEY</code>.</li>
+                    <li>Se aparecer erro em amarelo, contacta <a href="https://web3forms.com/help" target="_blank" rel="noopener">web3forms.com/help</a>. No Gmail, verifica Spam/Promoções e adiciona <code>notify@web3forms.com</code> aos contactos.</li>
                 </ol>
             </div>
         </div>
@@ -1034,7 +1038,7 @@
                     form_response_time: 'Resposta em até 24h úteis.',
                     success_title: '🚀 Pedido Recebido!',
                     success_body: 'O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.',
-                    success_activation: 'Se não receberes o email em 1–2 min: verifica Spam e Promoções; no dashboard Web3Forms confirma o email de destino. Site: galzu.pro'
+                    success_activation: 'O email é enviado para o endereço com que te registaste no Web3Forms (não para o email que preencheste no formulário). Se não chegar: verifica Spam e Promoções em galzuconsult@gmail.com; se te registaste com outro email, verifica também essa caixa. Adiciona notify@web3forms.com aos contactos. Se ainda não receberes, contacta web3forms.com/help.'
                 },
                 en: {
                     page_title: 'Galzu | Strategic Infrastructure for Local Businesses',
@@ -1110,7 +1114,7 @@
                     form_response_time: 'Reply within up to 24 business hours.',
                     success_title: '🚀 Request received!',
                     success_body: 'Your request was submitted successfully. We will review your business and send you a strategic plan within the next 24 hours.',
-                    success_activation: 'If you don\'t get the email in 1–2 min: check Spam and Promotions; in Web3Forms dashboard confirm the destination email. Site: galzu.pro'
+                    success_activation: 'Emails are sent to the address you used to register at Web3Forms (not the one you typed in the form). If it doesn\'t arrive: check Spam and Promotions in galzuconsult@gmail.com; if you registered with another email, check that inbox too. Add notify@web3forms.com to contacts. If you still don\'t receive, contact web3forms.com/help.'
                 }
             };
 
@@ -1169,10 +1173,10 @@
             });
         })();
 
-        // --- Web3Forms (método principal) — https://web3forms.com — regista com galzuconsult@gmail.com, copia a Access Key que recebes por email e cola abaixo ---
+        // --- Web3Forms (principal) — https://web3forms.com — Access Key abaixo ---
         const WEB3FORMS_ACCESS_KEY = '89fd7cd4-eab7-43d0-8bdd-4a0d3c5311d6';
-        // Fallback: Formspree — https://formspree.io — Form ID da URL (ex: xjvqeqky)
-        const FORMSPREE_FORM_ID = '';
+        // --- Formspree (plano B) — https://formspree.io/f/xeelvaol ---
+        const FORMSPREE_FORM_ID = 'xeelvaol';
 
         function isWeb3FormsKeyValid(key) {
             if (!key || typeof key !== 'string') return false;
@@ -1208,7 +1212,26 @@
             setFormStatus('A enviar...', 'sending');
             if (submitBtn) submitBtn.disabled = true;
 
-            // 1) Web3Forms (principal)
+            // 1) Formspree (plano B — ativa quando preencheres FORMSPREE_FORM_ID)
+            if (FORMSPREE_FORM_ID) {
+                try {
+                    var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    var data = await res.json();
+                    if (res.ok && !data.error) {
+                        setFormStatus('');
+                        formEl.style.display = 'none';
+                        document.getElementById('successMessage').classList.add('show');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+                } catch (e) { /* continua para Web3Forms */ }
+            }
+
+            // 2) Web3Forms (principal)
             if (isWeb3FormsKeyValid(WEB3FORMS_ACCESS_KEY)) {
                 try {
                     var w3body = {
@@ -1237,11 +1260,11 @@
                         return;
                     }
                     var errMsg = (data.body && data.body.message) ? data.body.message : (data.message || 'Erro ' + res.status);
-                    setFormStatus('Web3Forms: ' + errMsg + ' — Ver guia de configuração abaixo.', 'error');
+                    setFormStatus('Web3Forms: ' + errMsg + ' — Ver guia abaixo.', 'error');
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 } catch (e) {
-                    setFormStatus('Web3Forms: falha de rede. Tenta de novo ou verifica a consola (F12).', 'error');
+                    setFormStatus('Web3Forms: falha de rede. Preenche FORMSPREE_FORM_ID para usar Formspree.', 'error');
                     if (submitBtn) submitBtn.disabled = false;
                     return;
                 }
@@ -1249,25 +1272,6 @@
 
             setFormStatus('A tentar método alternativo...', 'sending');
             if (submitBtn) submitBtn.disabled = false;
-
-            // 2) Formspree (fallback)
-            if (FORMSPREE_FORM_ID) {
-                try {
-                    var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    var data = await res.json();
-                    if (res.ok && !data.error) {
-                        setFormStatus('');
-                        formEl.style.display = 'none';
-                        document.getElementById('successMessage').classList.add('show');
-                        if (submitBtn) submitBtn.disabled = false;
-                        return;
-                    }
-                } catch (e) { /* fallback */ }
-            }
 
             // 3) FormSubmit.co (último recurso)
             try {
