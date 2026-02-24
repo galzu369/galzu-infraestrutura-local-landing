@@ -1212,17 +1212,28 @@
             setFormStatus('A enviar...', 'sending');
             if (submitBtn) submitBtn.disabled = true;
 
-            // 1) Formspree (plano B — envio em FormData como no exemplo oficial)
+            // 1) Formspree (plano B — usa FormData do form (inclui name=\"email\"))
             if (FORMSPREE_FORM_ID) {
                 try {
-                    var formData = new FormData();
-                    Object.keys(payload).forEach(function (k) { formData.append(k, payload[k]); });
+                    // Importante: Formspree costuma esperar o campo `email` (minúsculo) no payload.
+                    // Por isso usamos FormData(form) e só acrescentamos campos extra para subject/message.
+                    var formData = new FormData(formEl);
+                    formData.append('_subject', payload._subject);
+                    // Campo "message" ajuda a compatibilidade/legibilidade no email do Formspree
+                    formData.append('message', payload.Maior_dificuldade);
+                    // Campos adicionais (opcional, mas deixam o email mais claro)
+                    formData.append('Nome_do_negocio', payload.Nome_do_negocio);
+                    formData.append('Tipo_de_servico', payload.Tipo_de_servico);
+                    formData.append('Ha_quanto_tempo_negocio', payload.Ha_quanto_tempo_negocio);
+                    formData.append('Zona', payload.Zona);
+                    formData.append('WhatsApp_Telefone', payload.WhatsApp_Telefone);
                     var res = await fetch('https://formspree.io/f/' + FORMSPREE_FORM_ID, {
                         method: 'POST',
                         headers: { 'Accept': 'application/json' },
                         body: formData
                     });
-                    var data = await res.json();
+                    var data;
+                    try { data = await res.json(); } catch (_) { data = {}; }
                     if (res.ok && !data.error && (!data.errors || data.errors.length === 0)) {
                         setFormStatus('');
                         formEl.style.display = 'none';
@@ -1232,6 +1243,11 @@
                     }
                     if (data.errors && data.errors.length) {
                         setFormStatus('Formspree: ' + (data.errors.map(function (e) { return e.message; }).join(', ')), 'error');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+                    if (!res.ok) {
+                        setFormStatus('Formspree: erro ' + res.status + '. (Verifica ativação do form no dashboard Formspree.)', 'error');
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
