@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galzu | Infraestrutura Estratégica Para Negócios Locais</title>
     <meta name="description" content="Construímos presença, autoridade e procura sistemática para negócios locais que entregam excelência todos os dias.">
+    <link rel="canonical" href="https://galzu.pro">
+    <meta property="og:url" content="https://galzu.pro">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👑</text></svg>">
     <style>
         * {
@@ -869,7 +871,7 @@
             <div class="success-message" id="successMessage">
                 <h3 data-i18n="success_title">🚀 Pedido Recebido!</h3>
                 <p data-i18n="success_body">O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.</p>
-                <p class="success-note" data-i18n="success_activation">Na primeira utilização, verifica a caixa de entrada e o spam: o serviço de envio pode ter enviado um email de ativação — clica no link para ativar as entregas.</p>
+                <p class="success-note" data-i18n="success_activation">Se não receberes o email em 1–2 min: verifica Spam e Promoções; no dashboard Web3Forms confirma o email de destino. Site: galzu.pro</p>
             </div>
         </div>
     </section>
@@ -987,7 +989,7 @@
                     form_response_time: 'Resposta em até 24h úteis.',
                     success_title: '🚀 Pedido Recebido!',
                     success_body: 'O teu pedido foi enviado com sucesso. Vou analisar o teu negócio e enviar-te um plano estratégico nas próximas 24 horas.',
-                    success_activation: 'Na primeira utilização, verifica a caixa de entrada e o spam: o serviço de envio pode ter enviado um email de ativação — clica no link para ativar as entregas.'
+                    success_activation: 'Se não receberes o email em 1–2 min: verifica Spam e Promoções; no dashboard Web3Forms confirma o email de destino. Site: galzu.pro'
                 },
                 en: {
                     page_title: 'Galzu | Strategic Infrastructure for Local Businesses',
@@ -1063,7 +1065,7 @@
                     form_response_time: 'Reply within up to 24 business hours.',
                     success_title: '🚀 Request received!',
                     success_body: 'Your request was submitted successfully. We will review your business and send you a strategic plan within the next 24 hours.',
-                    success_activation: 'On first use, check your inbox and spam: the form service may have sent an activation email — click the link to enable deliveries.'
+                    success_activation: 'If you don\'t get the email in 1–2 min: check Spam and Promotions; in Web3Forms dashboard confirm the destination email. Site: galzu.pro'
                 }
             };
 
@@ -1163,8 +1165,7 @@
                         Ha_quanto_tempo_negocio: payload.Ha_quanto_tempo_negocio,
                         Zona: payload.Zona,
                         WhatsApp_Telefone: payload.WhatsApp_Telefone,
-                        Maior_dificuldade: payload.Maior_dificuldade,
-                        botcheck: ''
+                        Maior_dificuldade: payload.Maior_dificuldade
                     };
                     var res = await fetch('https://api.web3forms.com/submit', {
                         method: 'POST',
@@ -1177,7 +1178,12 @@
                         document.getElementById('successMessage').classList.add('show');
                         return;
                     }
-                } catch (e) { /* fallback */ }
+                    if (typeof console !== 'undefined' && console.log) {
+                        console.log('Web3Forms response:', res.status, data);
+                    }
+                } catch (e) {
+                    if (typeof console !== 'undefined' && console.log) { console.log('Web3Forms error:', e); }
+                }
             }
 
             // 2) Formspree (fallback)
