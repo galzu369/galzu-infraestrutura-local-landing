@@ -845,7 +845,7 @@
                 <p class="section-subtitle" data-i18n="contact_subtitle">Preenche o formulário e recebes um plano claro em 24h.</p>
             </div>
 
-            <form class="contact-form" id="contactForm" action="https://formspree.io/f/xeelvaol" method="POST">
+            <form class="contact-form" id="contactForm" action="https://formspree.io/f/xeelvaol" method="POST" onsubmit="submitBusinessRequest(event)">
                 <input type="checkbox" name="botcheck" class="hidden" style="display: none" tabindex="-1" autocomplete="off">
                 <div class="form-grid">
                     <div class="form-group">
@@ -1252,10 +1252,15 @@
                         if (submitBtn) submitBtn.disabled = false;
                         return;
                     }
-                } catch (e) { /* continua para Web3Forms */ }
+                } catch (e) {
+                    // Se falhar aqui, queremos ver o erro em vez de cair para Web3Forms (que pode dar "sucesso" sem entrega).
+                    setFormStatus('Formspree: falha de rede/bloqueio no browser. Desativa AdBlock/Tracking Protection e tenta novamente.', 'error');
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
+                }
             }
 
-            // 2) Web3Forms (principal)
+            // 2) Web3Forms (fallback)
             if (isWeb3FormsKeyValid(WEB3FORMS_ACCESS_KEY)) {
                 try {
                     var w3body = {
@@ -1339,18 +1344,7 @@
             form.submit();
         }
 
-        // Formspree (POST nativo) — mostra sucesso ao voltar do redirect
-        (function () {
-            try {
-                var url = new URL(window.location.href);
-                if (url.searchParams.get('submitted') === '1') {
-                    var form = document.getElementById('contactForm');
-                    if (form) form.style.display = 'none';
-                    var msg = document.getElementById('successMessage');
-                    if (msg) msg.classList.add('show');
-                }
-            } catch (_) {}
-        })();
+        // Nota: não usamos redirect (plano gratuito). O sucesso é mostrado via AJAX.
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
