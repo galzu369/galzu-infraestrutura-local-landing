@@ -845,7 +845,7 @@
                 <p class="section-subtitle" data-i18n="contact_subtitle">Preenche o formulário e recebes um plano claro em 24h.</p>
             </div>
 
-            <form class="contact-form" onsubmit="submitBusinessRequest(event)">
+            <form class="contact-form" id="contactForm" action="https://formspree.io/f/xeelvaol" method="POST">
                 <input type="checkbox" name="botcheck" class="hidden" style="display: none" tabindex="-1" autocomplete="off">
                 <div class="form-grid">
                     <div class="form-group">
@@ -892,10 +892,11 @@
                 
                 <div class="form-group full-width">
                     <label for="challenge" data-i18n="label_challenge">Qual a tua maior dificuldade agora?</label>
-                    <textarea id="challenge" name="challenge" rows="4" placeholder="Descreve o principal desafio que enfrentas no teu negócio..." data-i18n-placeholder="ph_challenge" required></textarea>
+                    <textarea id="challenge" name="message" rows="4" placeholder="Descreve o principal desafio que enfrentas no teu negócio..." data-i18n-placeholder="ph_challenge" required></textarea>
                 </div>
 
                 <p class="form-note" data-i18n-html="form_note">Analisamos cada pedido individualmente.<br>Se encaixar no perfil, agendamos conversa em 24h.</p>
+                <input type="hidden" name="source" value="galzu_pro_formspree">
                 
                 <button type="submit" class="form-submit" id="formSubmitBtn" data-i18n="cta_form">Receber Diagnóstico</button>
                 <p class="form-response" data-i18n="form_response_time">Resposta em até 24h úteis.</p>
@@ -1337,6 +1338,19 @@
             form.appendChild(sub);
             form.submit();
         }
+
+        // Formspree (POST nativo) — mostra sucesso ao voltar do redirect
+        (function () {
+            try {
+                var url = new URL(window.location.href);
+                if (url.searchParams.get('submitted') === '1') {
+                    var form = document.getElementById('contactForm');
+                    if (form) form.style.display = 'none';
+                    var msg = document.getElementById('successMessage');
+                    if (msg) msg.classList.add('show');
+                }
+            } catch (_) {}
+        })();
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
