@@ -1233,8 +1233,23 @@
                         headers: { 'Accept': 'application/json' },
                         body: formData
                     });
+                    var ctype = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
+                    if (ctype.toLowerCase().indexOf('application/json') === -1) {
+                        var raw = '';
+                        try { raw = await res.text(); } catch (_) {}
+                        var hint = raw && raw.toLowerCase().indexOf('cloudflare') !== -1 ? ' (Cloudflare/Access denied)' : '';
+                        setFormStatus('Formspree: resposta não-JSON, status ' + res.status + hint + '. Isto costuma ser bloqueio (AdBlock/Tracking/DNS).', 'error');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+
                     var data;
-                    try { data = await res.json(); } catch (_) { data = {}; }
+                    try { data = await res.json(); } catch (_) {
+                        setFormStatus('Formspree: JSON inválido (status ' + res.status + '). Tenta novamente.', 'error');
+                        if (submitBtn) submitBtn.disabled = false;
+                        return;
+                    }
+
                     if (res.ok && !data.error && (!data.errors || data.errors.length === 0)) {
                         setFormStatus('');
                         formEl.style.display = 'none';
