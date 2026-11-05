@@ -8,7 +8,7 @@ O kit `REDES_SOCIAIS.txt` inclui posicionamento, bio, descrição Facebook, trê
 
 Antes do lançamento:
 
-- Identificar os URLs dos perfis Instagram e Facebook e o contacto comercial.
+- Perfis indicados por Filipe: [Instagram @galzugal](https://www.instagram.com/galzugal/) e [Facebook Galzu Services](https://www.facebook.com/galzuservices). Confirmar o email comercial que deve receber os pedidos.
 - Confirmar a oferta, disponibilidade e âmbito/preço do piloto.
 - Verificar o destinatário associado à chave pública Web3Forms existente, configurar assunto/origem se necessário e testar receção de forma autorizada.
 - Completar a informação de privacidade com contacto direto, conservação e restantes informações aplicáveis.

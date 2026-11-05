@@ -7,17 +7,18 @@ Oferta de entrada: demonstração com dados fictícios e conversa para definir u
 Oferta recorrente: relatório mensal, após validar compatibilidade, tempo de entrega e utilidade do piloto.
 Objetivo: captar contactos relevantes e conseguir um primeiro piloto pago.
 
-NOME VISÍVEL PROPOSTO
-Galzu | Gestão de Restaurantes
-Preservar o nome de utilizador até conhecer os perfis atuais.
+PERFIS INDICADOS POR FILIPE
+Instagram https://www.instagram.com/galzugal/
+Facebook https://www.facebook.com/galzuservices
 
-BIO INSTAGRAM (130 caracteres, incluindo quebras de linha)
-Ajudo restaurantes a perceber vendas, comissões e promoções.
-Relatórios Uber Eats + POS → decisões claras.
-Pede uma demonstração ↓
+BIO INSTAGRAM · 150 caracteres
+Ajudo restaurantes a perceber quanto fica das vendas Uber Eats depois das comissões e promoções.
+Envia «RELATÓRIO» por mensagem para veres um exemplo.
 
 DESCRIÇÃO FACEBOOK
-Transformo relatórios Uber Eats e POS em informação clara para proprietários e gestores de restaurantes: vendas, comissões, promoções e ajustes, explicados num relatório visual. Sou Filipe Catalão, gestor de restauração e criador da Galzu. Pede uma demonstração e avaliamos um primeiro relatório para o teu negócio.
+Geres um restaurante e queres perceber quanto fica das vendas Uber Eats? Analiso os teus relatórios Uber e POS e mostro-te, num PDF, as vendas, as comissões e o custo das promoções. Envia «RELATÓRIO» por mensagem para veres um exemplo.
+
+Enquanto a landing está em revisão, usar nas publicações o convite «Envia RELATÓRIO por mensagem para veres um exemplo». Após o lançamento, usar os links de campanha abaixo.
 
 BOTÃO DE PERFIL
 Saber mais → landing específica /restaurantes/
@@ -66,7 +67,7 @@ Facebook: /restaurantes/?utm_source=facebook&utm_medium=organic_social&utm_campa
 As UTM são encaminhadas no pedido; esta versão não mede visitas, cliques ou conversões automaticamente.
 
 PLANO INICIAL — 14 DIAS
-Dia 1–2: confirmar perfis, contacto de destino, âmbito comercial e informação sobre dados.
+Dia 1–2: confirmar contacto de destino, âmbito comercial e informação sobre dados.
 Dia 3: rever a página no telemóvel e fazer um teste de receção autorizado, com dados de teste.
 Dia 4: atualizar os perfis e publicar os três conteúdos.
 Dia 5–14: apresentar pessoalmente o serviço a contactos relevantes; registar contactos, demonstrações pedidas, propostas e pilotos pagos.
@@ -79,4 +80,4 @@ Não anunciar automatização da obtenção dos relatórios Uber.
 Não usar nome, dados, relatórios, marcas ou testemunhos BUCO/RIBBAÍ sem autorização.
 Não apresentar os 99 € + 59 €/mês como preço validado: foram apenas uma hipótese anterior.
 Não dizer que sobra lucro quando só foram apuradas vendas e deduções de um canal.
-Não mudar nem publicar nos perfis antes de identificar as contas corretas.
+Usar os perfis indicados acima para a revisão final das bios e das publicações.
