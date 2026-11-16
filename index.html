@@ -476,36 +476,83 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
     rev.forEach(function (r) { io.observe(r); });
   } else { rev.forEach(function (r) { r.classList.add('in'); }); }
 
+  // medição: Umami (sem cookies). Sem UMAMI_ID não carrega nada. Eventos e UTM: medicao/PLANO_MEDICAO.md
+  var UMAMI_ID = '4956f3eb-0750-4e2a-9772-d872b0e5483f';
+  function track(n, d) { try { if (window.umami && typeof window.umami.track === 'function') window.umami.track(n, d || {}); } catch (x) {} }
+  if (UMAMI_ID) {
+    var um = document.createElement('script');
+    um.defer = true; um.src = 'https://cloud.umami.is/script.js';
+    um.setAttribute('data-website-id', UMAMI_ID);
+    um.setAttribute('data-domains', 'galzu.pro,www.galzu.pro');
+    um.setAttribute('data-do-not-track', 'true');
+    document.head.appendChild(um);
+  }
+  // origem da visita (1.º contacto da sessão): vai no pedido de diagnóstico e fica só no separador
+  function origem() {
+    var o = null;
+    try { o = JSON.parse(sessionStorage.getItem('galzu-origem') || 'null'); } catch (x) {}
+    if (o) return o;
+    var q = new URLSearchParams(location.search), ref = '';
+    try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch (x) {}
+    o = { utm_source: q.get('utm_source') || '', utm_medium: q.get('utm_medium') || '', utm_campaign: q.get('utm_campaign') || '',
+          utm_content: q.get('utm_content') || '', utm_term: q.get('utm_term') || '', clique_anuncio: q.get('fbclid') ? 'sim' : '',
+          entrada: location.pathname, referrer: ref === location.hostname ? '' : ref };
+    try { sessionStorage.setItem('galzu-origem', JSON.stringify(o)); } catch (x) {}
+    return o;
+  }
+  var ORIGEM = origem();
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a, button') : null;
+    if (!a) return;
+    if (a.dataset && a.dataset.lang) { track('lingua', { idioma: a.dataset.lang }); return; }
+    var h = a.getAttribute('href') || '';
+    if (h === '#diagnostico') {
+      track('cta_pedir_diagnostico', { posicao: a.classList.contains('skip') ? 'saltar' : a.closest('header') ? 'topo' : a.classList.contains('pack-cta') ? 'pacote' : a.closest('.card-main') ? 'card_principal' : 'outro' });
+    } else if (h.indexOf('instagram.com') > -1) { track('contacto_clique', { canal: 'instagram' }); }
+    else if (h.indexOf('facebook.com') > -1) { track('contacto_clique', { canal: 'facebook' }); }
+    else if (h.indexOf('mailto:') === 0) { track('contacto_clique', { canal: 'email' }); }
+    else if (h.indexOf('privacidade.html') > -1) { track('privacidade_aberta'); }
+  });
+  var dg = document.getElementById('diagnostico');
+  if (dg && 'IntersectionObserver' in window) {
+    var vo = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { track('ver_formulario'); vo.disconnect(); } }, { threshold: .15 });
+    vo.observe(dg);
+  }
+
   // formulário: envia para o Web3Forms quando WEB3FORMS_KEY existe; sem chave, é só pré-visualização
   var form = document.getElementById('form'), st = document.getElementById('status'), btn = document.getElementById('enviar');
   var WEB3FORMS_KEY = '89fd7cd4-eab7-43d0-8bdd-4a0d3c5311d6';
   function en() { return document.documentElement.lang === 'en'; }
+  var iniciou = false;
+  form.addEventListener('focusin', function () { if (!iniciou) { iniciou = true; track('form_inicio'); } });
   function say(pt, e, ok) { st.className = 'status on'; st.style.borderLeftColor = ok === false ? '#C0392B' : ''; st.textContent = en() ? e : pt; }
   form.addEventListener('submit', function (ev) {
     ev.preventDefault();
     var bad = [].filter.call(form.querySelectorAll('[required]'), function (f) { return f.type === 'checkbox' ? !f.checked : !f.value.trim(); });
-    if (bad.length) { say('Preenche os campos obrigatórios.', 'Please fill in the required fields.', false); bad[0].focus(); return; }
+    if (bad.length) { track('form_erro', { tipo: 'campos_em_falta' }); say('Preenche os campos obrigatórios.', 'Please fill in the required fields.', false); bad[0].focus(); return; }
     if (form.botcheck && form.botcheck.checked) return;
     if (!WEB3FORMS_KEY) { say('Pré-visualização: nada foi enviado. Em produção, liga-se ao formulário de contacto.', 'Preview: nothing was sent. In production this connects to the contact form.'); return; }
     var canais = [].map.call(form.querySelectorAll('input[name=canais]:checked'), function (c) { return c.value; }).join(', ');
-    var q = new URLSearchParams(location.search);
     var data = {
       access_key: WEB3FORMS_KEY,
-      subject: 'Diagnóstico Galzu - ' + form.restaurante.value.trim() + ' - ' + form.interesse.value,
+      subject: 'Diagnóstico Galzu - ' + form.restaurante.value.trim() + ' - ' + form.interesse.value + (ORIGEM.utm_source ? ' [' + ORIGEM.utm_source + ']' : ''),
       from_name: form.restaurante.value.trim(),
       Restaurante: form.restaurante.value.trim(), Localidade: form.localidade.value.trim(), Funcao: form.funcao.value,
       Unidades: form.unidades.value, Canais: canais || '-', Interesse: form.interesse.value,
       Maior_dificuldade: form.dificuldade.value.trim() || '-', Contacto: form.contacto.value.trim(),
       Consentimento: 'sim', Lingua: document.documentElement.lang,
-      utm_source: q.get('utm_source') || '', utm_medium: q.get('utm_medium') || '', utm_campaign: q.get('utm_campaign') || ''
+      utm_source: ORIGEM.utm_source, utm_medium: ORIGEM.utm_medium, utm_campaign: ORIGEM.utm_campaign,
+      utm_content: ORIGEM.utm_content, utm_term: ORIGEM.utm_term, Clique_anuncio: ORIGEM.clique_anuncio,
+      Pagina_entrada: ORIGEM.entrada, Referrer: ORIGEM.referrer,
+      Dispositivo: matchMedia('(max-width: 768px)').matches ? 'telemovel' : 'computador'
     };
     if (/@/.test(data.Contacto)) data.email = data.Contacto;
     btn.disabled = true; say('A enviar…', 'Sending…');
-    function falha() { btn.disabled = false; say('Não foi possível enviar. Tenta de novo ou escreve para galzuconsult@gmail.com.', 'Could not send. Try again or write to galzuconsult@gmail.com.', false); }
+    function falha() { track('form_falha'); btn.disabled = false; say('Não foi possível enviar. Tenta de novo ou escreve para galzuconsult@gmail.com.', 'Could not send. Try again or write to galzuconsult@gmail.com.', false); }
     fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) })
       .then(function (r) { return r.json(); })
       .then(function (j) {
-        if (j && j.success) { form.reset(); btn.disabled = false; say('Pedido recebido. Respondemos em até 24 horas úteis.', 'Request received. We reply within 24 working hours.'); }
+        if (j && j.success) { track('form_enviado', { interesse: data.Interesse, idioma: data.Lingua }); form.reset(); btn.disabled = false; say('Pedido recebido. Respondemos em até 24 horas úteis.', 'Request received. We reply within 24 working hours.'); }
         else { falha(); }
       })
       .catch(falha);
