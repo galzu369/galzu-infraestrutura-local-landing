@@ -255,6 +255,14 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
   [data-enter], .passo.rev { opacity: 1; transform: none; transition: none; }
   html { scroll-behavior: auto; }
 }
+/* Formação: entrada para o percurso próprio, sem alterar o diagnóstico. */
+.formacao-nav { color: var(--gold); font-size: 14px; text-decoration: none; white-space: nowrap; }
+.formacao-home { padding: 64px 0; border-top: 1px solid #CFC8B8; }
+.formacao-home .wrap { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 44px; }
+.formacao-home h2 { font-size: clamp(2rem, 4vw, 3rem); max-width: 18em; }
+.formacao-home p { max-width: 34em; }
+.formacao-home small { display: block; margin-top: 14px; color: #655F53; }
+@media(max-width:700px) { .formacao-home .wrap { grid-template-columns: 1fr; gap: 20px; } .formacao-nav { font-size: 12px; } .nav { gap: 10px; } }
 </style>
 </head>
 <body>
@@ -264,6 +272,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
   <div class="wrap">
     <a class="brand" href="#topo" aria-label="Galzu"><img src="assets/galzu-assinatura-horizontal-dark.svg" alt="Galzu"></a>
     <nav class="nav" aria-label="Principal">
+      <a class="formacao-nav" href="formacao.html" data-i18n="formacao_nav">Formação IA</a>
       <div class="lang" role="group" aria-label="Língua / Language">
         <button type="button" data-lang="pt" aria-pressed="true">PT</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -430,6 +439,9 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
       </form>
     </div>
   </section>
+  <section class="paper formacao-home" aria-labelledby="formacao-heading">
+    <div class="wrap"><div><p class="etq mono" data-i18n="formacao_label">Galzu / Formação prática em IA</p><h2 id="formacao-heading" data-i18n="formacao_title">Traz uma ideia. Dá-lhe forma com IA.</h2></div><div><p data-i18n="formacao_desc">Aprende a construir, testar e melhorar uma primeira versão do teu projeto. Online, em português e com espaço para trabalhares na tua ideia.</p><a class="btn" href="formacao.html" data-i18n="formacao_cta">Conhecer a formação ↗</a><small data-i18n="formacao_note">Pré-inscrições para o Iniciante. Sem pagamento nesta fase.</small></div></div>
+  </section>
 </main>
 
 <footer class="dark">
@@ -440,6 +452,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
 <script>
 (function () {
   var EN = {
+    formacao_nav: 'AI training', formacao_label: 'Galzu / Practical AI training', formacao_title: 'Bring an idea. Give it shape with AI.', formacao_desc: 'Learn to build, test and improve a first version of your project. Online, taught in Portuguese, with time to work on your own idea.', formacao_cta: 'Explore the training (PT) ↗', formacao_note: 'Beginner pre-registration. No payment at this stage.', 
     skip: 'Skip to the diagnosis request', cta_nav: 'Book a diagnosis', kick: 'Galzu · for restaurants, today',
     h1a: 'Structure for', h1b: 'businesses.', lead: 'Purchases, stock, costs and sales in one system, under your restaurant’s own name.',
     apont: 'the system, in 5 months, just below',
@@ -520,7 +533,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
     if (!a) return;
     if (a.dataset && a.dataset.lang) { track('lingua', { idioma: a.dataset.lang }); return; }
     var h = a.getAttribute('href') || '';
-    if (h === '#diagnostico') {
+    if (h === 'formacao.html') { track('formacao_entrada', { posicao: a.closest('header') ? 'menu' : 'secao' }); }
+    else if (h === '#diagnostico') {
       track('cta_pedir_diagnostico', { posicao: a.classList.contains('skip') ? 'saltar' : a.closest('header') ? 'topo' : a.classList.contains('pack-cta') ? 'pacote' : a.closest('.card-main') ? 'card_principal' : 'outro' });
     } else if (h.indexOf('instagram.com') > -1) { track('contacto_clique', { canal: 'instagram' }); }
     else if (h.indexOf('facebook.com') > -1) { track('contacto_clique', { canal: 'facebook' }); }
@@ -575,3 +589,4 @@ footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wr
 </script>
 </body>
 </html>
+
