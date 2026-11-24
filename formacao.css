@@ -7,3 +7,7 @@
 .schedule{border:0;padding:0;margin:24px 0}.schedule legend{font-size:14px;font-weight:700;margin-bottom:8px}.schedule-options{display:flex;gap:10px;flex-wrap:wrap}.schedule-options label{display:flex;align-items:center;gap:8px;border:1px solid #575044;padding:11px 12px;cursor:pointer;font-size:14px;flex:1;white-space:nowrap}.schedule-options input{width:18px;height:18px;margin:0;accent-color:var(--gold)}.schedule-options label:has(input:checked){border-color:var(--gold);color:var(--gold)}
 
 .price{display:flex;gap:24px;align-items:center;border-top:1px solid #575044;border-bottom:1px solid #575044;padding:22px 0;margin:25px 0 14px}.price strong{font:800 54px/1 GalzuDisplay,system-ui,sans-serif;color:var(--gold);white-space:nowrap}.price span{font-size:13px;line-height:1.6}
+
+.signup{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:'intro form' 'details form';column-gap:90px;align-items:start}.signup-intro{grid-area:intro}.signup-details{grid-area:details}.signup-form{grid-area:form}.signup-details .price{margin-top:0}.form-note{margin:14px 0 0}.form-alt{margin:10px 0 0}.form-note a,.form-alt a{color:var(--gold)}
+@media(max-width:1000px){.signup{column-gap:45px}}
+@media(max-width:760px){.signup{grid-template-columns:1fr;grid-template-areas:'intro' 'form' 'details'}.signup-intro .lead{margin-bottom:28px}.signup-details{margin-top:45px}}

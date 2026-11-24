@@ -28,7 +28,10 @@
     if (sending || !form.reportValidity() || form.elements.botcheck.checked) return;
     sending = true; button.disabled = true; button.textContent = 'A enviar…'; status.textContent = 'A enviar a tua pré-inscrição…';
     const data = Object.fromEntries(new FormData(form));
-    Object.assign(data, campaign, { origem: 'galzu.pro/formacao.html', replyto: data.email });
+    const contacto = String(data.contacto || '').trim();
+    if (contacto.includes('@')) { data.email = contacto; data.replyto = contacto; } else { data.telefone = contacto; }
+    data.consentimento = 'Aceitou contacto sobre esta edição ao enviar (aviso no formulário)';
+    Object.assign(data, campaign, { origem: 'galzu.pro/formacao.html' });
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 15000);
     try {
