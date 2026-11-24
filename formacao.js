@@ -8,12 +8,20 @@
     script.dataset.domains = 'galzu.pro,www.galzu.pro'; script.dataset.doNotTrack = 'true';
     document.head.appendChild(script);
   }
-  document.querySelectorAll('[data-cta]').forEach(link => link.addEventListener('click', () => track('formacao_cta', { posicao: link.dataset.cta, curso: 'iniciante' })));
   const form = document.getElementById('training-form');
+  const curso = form.dataset.curso || 'iniciante';
+  const t = {
+    sending: form.dataset.msgSending || 'A enviar a tua pré-inscrição…',
+    btnSending: form.dataset.btnSending || 'A enviar…',
+    btnLabel: form.dataset.btnLabel || 'Enviar pré-inscrição ↗',
+    ok: form.dataset.msgOk || 'Pré-inscrição recebida. A tua preferência de horário ficou registada. Entraremos em contacto para confirmar a turma, o horário e as condições da edição. Ainda não tens uma vaga confirmada e não há pagamento nesta fase.',
+    fail: form.dataset.msgFail || 'Não conseguimos confirmar o envio. Os teus dados continuam no formulário. Tenta novamente ou escreve para galzuconsult@gmail.com. Se houve uma falha de ligação, o pedido pode já ter chegado.'
+  };
+  document.querySelectorAll('[data-cta]').forEach(link => link.addEventListener('click', () => track('formacao_cta', { posicao: link.dataset.cta, curso })));
   const status = document.getElementById('form-status');
   const button = form.querySelector('button[type=submit]');
   let sending = false;
-  form.addEventListener('focusin', () => track('formacao_inicio', { curso: 'iniciante' }), { once: true });
+  form.addEventListener('focusin', () => track('formacao_inicio', { curso }), { once: true });
   form.addEventListener('invalid', () => track('formacao_validacao'), true);
   const campaign = {};
   const query = new URLSearchParams(location.search);
@@ -26,12 +34,12 @@
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (sending || !form.reportValidity() || form.elements.botcheck.checked) return;
-    sending = true; button.disabled = true; button.textContent = 'A enviar…'; status.textContent = 'A enviar a tua pré-inscrição…';
+    sending = true; button.disabled = true; button.textContent = t.btnSending; status.textContent = t.sending;
     const data = Object.fromEntries(new FormData(form));
     const contacto = String(data.contacto || '').trim();
     if (contacto.includes('@')) { data.email = contacto; data.replyto = contacto; } else { data.telefone = contacto; }
     data.consentimento = 'Aceitou contacto sobre esta edição ao enviar (aviso no formulário)';
-    Object.assign(data, campaign, { origem: 'galzu.pro/formacao.html' });
+    Object.assign(data, campaign, { origem: 'galzu.pro' + location.pathname });
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 15000);
     try {
@@ -39,13 +47,13 @@
       const result = await response.json();
       if (!response.ok || result.success !== true) throw new Error('submission_failed');
       form.reset();
-      status.textContent = 'Pré-inscrição recebida. A tua preferência de horário ficou registada. Entraremos em contacto para confirmar a turma, o horário e as condições da edição. Ainda não tens uma vaga confirmada e não há pagamento nesta fase.';
-      track('formacao_enviada', { curso: 'iniciante' });
+      status.textContent = t.ok;
+      track('formacao_enviada', { curso });
     } catch {
-      status.textContent = 'Não conseguimos confirmar o envio. Os teus dados continuam no formulário. Tenta novamente ou escreve para galzuconsult@gmail.com. Se houve uma falha de ligação, o pedido pode já ter chegado.';
-      track('formacao_falha', { curso: 'iniciante' });
+      status.textContent = t.fail;
+      track('formacao_falha', { curso });
     } finally {
-      clearTimeout(timer); sending = false; button.disabled = false; button.textContent = 'Enviar pré-inscrição ↗'; status.focus();
+      clearTimeout(timer); sending = false; button.disabled = false; button.textContent = t.btnLabel; status.focus();
     }
   });
 })();
